@@ -36,10 +36,10 @@ a:hover {
 }
 
 nav {
-	display: flex;
+	/* display: flex; */
 	background-color: #051924;
-	align-items: center;
-	padding: 5px 20px;
+	/* align-items: center; */
+	/* padding: 5px 20px; */
 	border-radius: 3px 3px 0 0;
 	color: white;
 	border: double 3px #909590;
@@ -47,13 +47,14 @@ nav {
 #nav-all {
 	font-size: 1.5rem;
 }
+
 .main-nav-links {
-	margin: 0 15px;
+	/* margin: 0 15px; */
 }
 
 .nav-link {
 	font-size: 0.85rem;
-	margin: 0 3px;
+	/* margin: 0 3px; */
 }
 
 .nav-right {
@@ -196,7 +197,7 @@ form > hr {
 
 #favorited-articles,
 #filtered-articles,
-#my-articles {
+#user-articles {
 	list-style: none;
 	padding-left: 20px;
 }
@@ -216,6 +217,37 @@ form > hr {
 
 #user-profile > * {
 	margin: 10px 0;
+}
+
+.fa-star.fas {
+	color: goldenrod;
+	transition: 1000ms;
+	/* animation-name: star-spin;
+	animation-duration: 1000ms;
+	animation-iteration-count: 1; */
+}
+.fa-star.far {
+	color: goldenrod;
+	transition: 750ms;
+}
+.spin {
+	animation-name: star-spin;
+	animation-duration: 1000ms;
+	animation-iteration-count: 1;
+}
+.fa-trash {
+}
+/** Animation to spin the star once when it changes favorite status*/
+@keyframes star-spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	10% {
+		transform: rotate(-15deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 /** responsive queries for tightening things up for mobile. */

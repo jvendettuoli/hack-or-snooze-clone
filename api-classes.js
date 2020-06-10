@@ -33,18 +33,32 @@ class StoryList {
 
 	/**
    * Method to make a POST request to /stories and add the new story to the list
-   * - user - the current instance of User who will post the story
+   * - token - loginToken of the current instance of User who will post the story
    * - newStory - a new story object for the API with title, author, and url
    *
    * Returns the new story object
    */
 
-	async addStory(user, newStory) {
-		// TODO - Implement this functions!
+	static async addStory(token, newStory) {
 		// this function should return the newly created story so it can be used in
-		// the script.js file where it will be appended to the DOM
+		// the ui.js file where it will be appended to the DOM
+		const response = await axios.post(`${BASE_URL}/stories`, { token, story: newStory });
+		const addStory = response.data;
+		return addStory;
+	}
 
-		const response = await axios.post(`${BASE_URL}/stories`);
+	/**
+	 * Method to make a DELETE request to /stories and delete a story. 
+	 * Takes current user's loginToken and a storyId and deletes the story from the Hack or Snooze database
+	 */
+
+	static async deleteStory(token, storyId) {
+		console.log(token, storyId);
+		await axios.delete(`${BASE_URL}/stories/${storyId}`, {
+			data : {
+				token
+			}
+		});
 	}
 }
 
@@ -147,6 +161,44 @@ class User {
 		existingUser.favorites = response.data.user.favorites.map((s) => new Story(s));
 		existingUser.ownStories = response.data.user.stories.map((s) => new Story(s));
 		return existingUser;
+	}
+
+	/**
+	 * Allow logged in user to favorite and unfavorite stories that will be displayed on a separate list of only favorited stories.
+	 * 
+	 * These methods receives a user and storyId and if adding favorite post request to API, and if removing favorite sents delete request to API 
+	 */
+
+	static async addFavorite(user, storyId) {
+		await axios.post(`${BASE_URL}/users/${user.username}/favorites/${storyId}`, {
+			token : user.loginToken
+		});
+	}
+
+	static async removeFavorite(user, storyId) {
+		await axios.delete(`${BASE_URL}/users/${user.username}/favorites/${storyId}`, {
+			data : {
+				token : user.loginToken
+			}
+		});
+	}
+
+	/**
+	 * Updates the user 
+	 * 
+	 * Accepts a user and makes patch request to API, returns updated user object
+	 */
+	static async update(user) {
+		let newName = 'test';
+		let response = await axios.patch(`${BASE_URL}/users/${user.username}`, {
+			token : user.loginToken,
+			user  : {
+				name : newName
+			}
+		});
+		const updatedUser = new User(response.data.user);
+		updatedUser.favorites = user.favorites;
+		return updatedUser;
 	}
 }
 
