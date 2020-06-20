@@ -3,18 +3,20 @@ html {
 }
 
 body {
-	margin: 8px 7.5vw;
-	background-color: #020d12;
+	background-color: #070014;
+}
+
+.articles-container {
+	border-top: solid 2px #070014;
 }
 
 h1 {
-	font-size: 1.1rem;
-	margin: 0;
+	font-size: 1.2rem;
 }
 
 h4 {
 	font-size: 1rem;
-	margin: 0;
+	font-weight: bold;
 }
 
 h5 {
@@ -34,27 +36,29 @@ a:hover {
 .hidden {
 	display: none;
 }
+.hidden > * {
+	display: none;
+}
 
 nav {
-	/* display: flex; */
-	background-color: #051924;
-	/* align-items: center; */
-	/* padding: 5px 20px; */
+	background-color: #1c004d;
 	border-radius: 3px 3px 0 0;
-	color: white;
-	border: double 3px #909590;
+	color: #e4f4ff;
+	border: double 3px white;
 }
 #nav-all {
 	font-size: 1.5rem;
 }
 
-.main-nav-links {
-	/* margin: 0 15px; */
+.navbar-toggler-icon {
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .nav-link {
 	font-size: 0.85rem;
-	/* margin: 0 3px; */
 }
 
 .nav-right {
@@ -65,9 +69,7 @@ nav {
 	display: flex;
 	flex-direction: column;
 	align-self: center;
-	background-color: #f3eff5;
-	border: solid 3px #0a0a0a;
-	margin-top: 4px;
+	background-color: #e4f4ff;
 }
 
 form {
@@ -85,7 +87,6 @@ form label {
 	font-weight: 700;
 	display: inline-block;
 	width: 3.5rem;
-	text-align: right;
 	margin-right: 5px;
 }
 
@@ -103,17 +104,18 @@ form input:focus {
 	box-shadow: 0 0 4px 1px darkgray;
 }
 
-form > button {
-	width: 4rem;
-	margin: 5px 0px 15px 65px;
-	border: none;
-	border-radius: 4px;
-	padding: 8px;
-	font-size: 0.85rem;
-	background-color: lightslategray;
-	color: white;
-	cursor: pointer;
-	transition: all 0.15s;
+#update-user-container > * {
+	background-color: #c5e8ff;
+	justify-content: center;
+}
+#user-profile-btns {
+	margin: 15px;
+	justify-content: space-evenly;
+}
+
+#update-btn {
+	margin: auto;
+	width: 80%;
 }
 
 form > button:hover {
@@ -125,8 +127,16 @@ form > hr {
 	border: 0.5px solid lightgray;
 }
 
+.error {
+	color: rgb(185, 0, 0);
+}
+
 .login-input label {
 	width: 70px;
+}
+
+#account-forms-container {
+	background-color: #a7cde7;
 }
 
 .account-form button {
@@ -140,33 +150,18 @@ form > hr {
 }
 
 .articles-list {
-	margin: 20px 5px;
+	margin: 10px;
 }
 
 .articles-list > li {
 	color: gray;
 	font-size: 0.8rem;
-	margin: 10px 0;
-	cursor: pointer;
-	/* border-top: solid 1px grey; */
+	margin: 0 20 0 0;
 	border-bottom: solid 1px grey;
 	padding-bottom: 4px;
 }
-
-.star,
-.trash-can,
-.pencil {
-	font-size: 0.75rem;
-	margin: 0 2px;
-	cursor: pointer;
-}
-
-.trash-can:hover {
-	color: crimson;
-}
-
-.pencil:hover {
-	color: darkblue;
+.articles-list > li:hover {
+	background-color: #c5e8ff;
 }
 
 .article-link > strong {
@@ -195,6 +190,11 @@ form > hr {
 	margin-left: 25px;
 }
 
+#user-profile {
+	padding: 10px 10vw;
+	background-color: #a7cde7;
+}
+
 #favorited-articles,
 #filtered-articles,
 #user-articles {
@@ -210,21 +210,18 @@ form > hr {
 	margin-bottom: 25px;
 }
 
-#user-profile {
-	padding: 10px 20px 20px;
-	font-size: 0.9rem;
-}
-
-#user-profile > * {
-	margin: 10px 0;
+.fa-star,
+.fa-trash,
+.fa-user-cog,
+.fa-pencil-alt {
+	font-size: 0.75rem;
+	margin: 0 2px;
+	cursor: pointer;
 }
 
 .fa-star.fas {
 	color: goldenrod;
 	transition: 1000ms;
-	/* animation-name: star-spin;
-	animation-duration: 1000ms;
-	animation-iteration-count: 1; */
 }
 .fa-star.far {
 	color: goldenrod;
@@ -235,7 +232,16 @@ form > hr {
 	animation-duration: 1000ms;
 	animation-iteration-count: 1;
 }
-.fa-trash {
+.fa-trash:hover {
+	color: rgb(136, 14, 38);
+}
+
+.fa-pencil-alt:hover {
+	color: darkblue;
+}
+
+.fa-user-cog {
+	color: red;
 }
 /** Animation to spin the star once when it changes favorite status*/
 @keyframes star-spin {
@@ -243,7 +249,7 @@ form > hr {
 		transform: rotate(0deg);
 	}
 	10% {
-		transform: rotate(-15deg);
+		transform: rotate(-35deg);
 	}
 	100% {
 		transform: rotate(360deg);

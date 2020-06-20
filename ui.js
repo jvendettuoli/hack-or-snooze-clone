@@ -9,11 +9,31 @@ $(async function() {
 	const $createAccountForm = $('#create-account-form');
 	const $userStories = $('#user-articles');
 	const $navLogin = $('#nav-login');
-	const $navLogOut = $('#nav-logout');
-	const $addStoryForm = $('#add-story-submit-btn');
+	const $logOutBtn = $('#log-out');
+	const $addStoryForm = $('#add-story-form');
 	const $favoritedStories = $('#favorited-articles');
 	const $navFavorites = $('#nav-favorites');
 	const $navUserStories = $('#nav-user-stories');
+	const $navSubmit = $('#nav-submit');
+	const $profileUsername = $('#profile-username');
+	const $profileName = $('#profile-name');
+	const $profileAcctDate = $('#profile-account-date');
+	const $navProfile = $('#nav-profile');
+	const $profileContainer = $('#user-profile');
+	const $accountContainer = $('#account-forms-container');
+	const $addStoryContainer = $('#add-story-container');
+	const $editForm = $('#edit-story-container');
+	const $updateUserContainer = $('#update-user-container');
+	const $updateUserBtn = $('#update-user-info-btn');
+	const $updateUserForm = $('#update-account-form');
+	const $credentialsError = $('#credentials-error');
+	const $missingError = $('#missing-error');
+	const $conflictError = $('#conflict-error');
+	const $invalidEditError = $('#invalid-error-edit');
+	const $invalidAddError = $('#invalid-error-add');
+	const $nameValidationMsg = $('#name-validation-msg');
+	const $usernameValidationMsg = $('#username-validation-msg');
+	const $passwordValidationMsg = $('#password-validation-msg');
 
 	// global storyList variable
 	let storyList = null;
@@ -37,6 +57,10 @@ $(async function() {
 
 		// call the login static method to build a user instance
 		const userInstance = await User.login(username, password);
+		//Check for error in API response and stop login
+		if (errorOccurance(userInstance)) {
+			return;
+		}
 		// set the global user to the user instance
 		currentUser = userInstance;
 		syncCurrentUserToLocalStorage();
@@ -55,10 +79,17 @@ $(async function() {
 		let name = $('#create-account-name').val();
 		let username = $('#create-account-username').val();
 		let password = $('#create-account-password').val();
-		console.log(name, username, password);
+
+		//checks if inputs are valid and cancels submission if they are not
+		//then displays error message
+		if (!validateInputs(name, username, password)) return;
 
 		// call the create method, which calls the API and then builds a new user instance
 		const newUser = await User.create(username, password, name);
+		//Check for error response from API request and stop account creation process to allow new submission
+		if (errorOccurance(newUser)) {
+			return;
+		}
 		currentUser = newUser;
 		syncCurrentUserToLocalStorage();
 		loginAndSubmitForm();
@@ -68,9 +99,14 @@ $(async function() {
    * Log Out Functionality
    */
 
-	$navLogOut.on('click', function() {
+	$logOutBtn.on('click', function() {
 		// empty out local storage
 		localStorage.clear();
+		$navSubmit.toggleClass('disabled');
+		$navFavorites.toggleClass('disabled');
+		$navUserStories.toggleClass('disabled');
+
+		$profileContainer.toggle();
 		// refresh the page, clearing memory
 		location.reload();
 	});
@@ -81,9 +117,9 @@ $(async function() {
 
 	$navLogin.on('click', function() {
 		// Show the Login and Create Account Forms
-		$loginForm.slideToggle();
-		$createAccountForm.slideToggle();
-		$allStoriesList.toggle();
+		$loginForm.show();
+		$createAccountForm.show();
+		$accountContainer.slideToggle();
 	});
 
 	/**
@@ -92,7 +128,7 @@ $(async function() {
 	 * ##todo add in error handling for when not logged in or improper form entry
 	 */
 
-	$addStoryForm.on('click', async function(evt) {
+	$addStoryForm.on('submit', async function(evt) {
 		// get values from new story form and provide to StoryList method addStory
 		evt.preventDefault();
 		const newStory = {
@@ -102,7 +138,12 @@ $(async function() {
 		};
 
 		//call the addStory method, which calls the API with new story information and recieves and returns a formated new story to be appended to DOM
-		await StoryList.addStory(currentUser.loginToken, newStory);
+		const response = await StoryList.addStory(currentUser.loginToken, newStory);
+
+		// check for error response from API and notify user
+		if (errorOccurance(response)) {
+			return;
+		}
 		location.reload();
 	});
 
@@ -110,10 +151,53 @@ $(async function() {
    * Event listener for Navigation to Homepage
    */
 
-	$('body').on('click', '#nav-all', async function() {
+	$body.on('click', '#nav-all', async function() {
 		hideElements();
 		await generateStories();
-		$allStoriesList.removeClass('hidden');
+		$allStoriesList.show();
+	});
+
+	/**
+	 * Event listner for showing user profile information and settings
+	 */
+
+	$body.on('click', '#nav-profile', async function(evt) {
+		evt.preventDefault();
+		// hideElements();
+
+		$profileContainer.slideToggle();
+	});
+
+	/**
+	 * Event listener to show update user container/form
+	 */
+	$updateUserBtn.on('click', function(evt) {
+		evt.preventDefault();
+
+		$updateUserContainer.slideToggle();
+	});
+
+	/**
+	 * Event listener for submitting Account changes
+	 */
+	$updateUserForm.on('submit', async function(evt) {
+		// get values from current user and provide to User.update method
+		evt.preventDefault();
+		const userUpdate = {
+			name     : $('#update-account-name').val(),
+			password : $('#update-account-password').val()
+		};
+
+		//remove empty edit fields
+		for (let key in userUpdate) {
+			if (userUpdate[key] === '') {
+				delete userUpdate[key];
+			}
+		}
+
+		//call the User.update method, which calls the API with updated user information and returns a new user object
+		currentUser = await User.updateAccount(currentUser, userUpdate);
+		location.reload();
 	});
 
 	/**
@@ -131,8 +215,20 @@ $(async function() {
 		// get the story id associated with the story favorite star clicked
 		const storyId = $favStar.closest('li').attr('id');
 
-		// Calls helper function to toggle star style and update User favorites
+		//control spin animation and if in favorite articles, remove article from list
+		$favStar.addClass('spin');
+		setTimeout(() => {
+			$favStar.removeClass('spin');
+			if (parentContainer === `${favoritesContainer}`) {
+				$favStar.closest('li').remove();
+			}
+		}, 1000);
+
+		// Calls helper function to update User favorites
 		await _handleFavClick();
+
+		//toggle star style
+		$favStar.toggleClass(`${emptyStar} ${fullStar}`);
 
 		// update user to have new favorited list, so that change to articles container does not show old favorites before refresh
 		currentUser = await User.getLoggedInUser(currentUser.loginToken, currentUser.username);
@@ -146,21 +242,15 @@ $(async function() {
 				//else star is empty (not favorited), and will be added to current user favorite list
 				await User.addFavorite(currentUser, storyId);
 			}
-			// toggle star style and start spin animation
-			$favStar.toggleClass(`${emptyStar} ${fullStar} spin`);
-			// end spin animation and if in favorite articles, remove article from list
-			setTimeout(() => {
-				$favStar.removeClass('spin');
-				if (parentContainer === `${favoritesContainer}`) {
-					$favStar.closest('li').remove();
-				}
-			}, 1000);
 		}
 	});
 
+	/**
+	 * Event listener for deleting a posted story. When on My Stories is visible, clicking the trashcan next to the post will delete it.
+	 */
+
 	$userStories.on('click', '.fa-trash', async function(evt) {
 		const storyId = $(evt.target).closest('li').attr('id');
-		console.log(storyId);
 		await StoryList.deleteStory(currentUser.loginToken, storyId);
 		// update user to have new stories list, so that change to articles container does not show deleted stories before refresh
 		currentUser = await User.getLoggedInUser(currentUser.loginToken, currentUser.username);
@@ -169,12 +259,54 @@ $(async function() {
 	});
 
 	/**
+	 * Event listener for showing the story edit form
+	 */
+	$userStories.on('click', '.fa-pencil-alt', function(evt) {
+		$(evt.target).closest('li').after($editForm.get(0));
+		$editForm.slideToggle();
+	});
+
+	/**
+	 * Event listener for submitting story edits 
+	 */
+	$editForm.on('submit', async function(evt) {
+		const storyId = $(evt.target).parent().prev().attr('id');
+		// get values from edit story form and provide to StoryList method editStory
+		evt.preventDefault();
+		const storyEdits = {
+			author : $('#edit-story-author').val(),
+			title  : $('#edit-story-title').val(),
+			url    : $('#edit-story-url').val()
+		};
+
+		//remove empty edit fields
+		for (let key in storyEdits) {
+			if (storyEdits[key] === '') {
+				delete storyEdits[key];
+			}
+		}
+
+		//call the editStory method, which calls the API with edit story information and recieves and returns a formated edited story to be appended to DOM
+		const response = await StoryList.updateStory(currentUser.loginToken, storyId, storyEdits);
+		// check for error response from API
+		if (errorOccurance(response)) {
+			return;
+		}
+		location.reload();
+	});
+
+	/**
+	 * Event listener for showing submit story section to user
+	 */
+	$navSubmit.on('click', async function() {
+		hideElements();
+		$addStoryContainer.slideToggle();
+	});
+	/**
 	 * Event listener for showing favorited stories list and hiding hiding all stories list
 	 */
 
 	$navFavorites.on('click', async function() {
-		if (!currentUser) return; //## Add message about logging in
-
 		hideElements();
 		await generateFavorites();
 	});
@@ -183,8 +315,6 @@ $(async function() {
 	 * Event listener for showing user's published stories list and hiding all stories list
 	 */
 	$navUserStories.on('click', async function() {
-		if (!currentUser) return; //## Add message about logging in
-
 		hideElements();
 		await generateUserStories();
 	});
@@ -204,9 +334,11 @@ $(async function() {
 		//  this is designed to run once, on page load
 		currentUser = await User.getLoggedInUser(token, username);
 		await generateStories();
+		$allStoriesList.show();
 
 		if (currentUser) {
 			showNavForLoggedInUser();
+			getProfileInfo();
 		}
 	}
 
@@ -216,8 +348,7 @@ $(async function() {
 
 	async function loginAndSubmitForm() {
 		// hide the forms for logging in and signing up
-		$loginForm.addClass('hidden');
-		$createAccountForm.addClass('hidden');
+		hideElements();
 
 		// reset those forms
 		$loginForm.trigger('reset');
@@ -225,10 +356,18 @@ $(async function() {
 
 		// show the stories
 		await generateStories();
-		$allStoriesList.removeClass('hidden');
+		$allStoriesList.show();
 
 		// update the navigation bar
+
 		showNavForLoggedInUser();
+		getProfileInfo();
+	}
+
+	async function getProfileInfo() {
+		$profileName.text(`Name: ${currentUser.name}`);
+		$profileUsername.text(`Username: ${currentUser.username}`);
+		$profileAcctDate.text(`Account Created: ${currentUser.createdAt}`);
 	}
 
 	/**
@@ -258,15 +397,23 @@ $(async function() {
 	function generateStoryHTML(story, isOwnStoriesPage) {
 		let hostName = getHostName(story.url);
 		//Check if story is favorited by user and change star style to full if true and empty if false
+		//Check if story was submitted by user and add trash and edit icons in My Stories tab
 		let favStar = '';
 		let trashIcon = '';
+		let editIcon = '';
 		if (currentUser) {
 			favStar = isFavorited(story)
 				? '<i class="fas fa-star"></i>' //full star
 				: '<i class="far fa-star"></i>'; //empty
-			trashIcon = isOwnStory(story) && isOwnStoriesPage ? '<i class="fas fa-trash"></i>' : '';
+			trashIcon =
+				isOwnStory(story) && isOwnStoriesPage
+					? '<i class="fas fa-trash" data-toggle="tooltip" data-placement="bottom" title="Delete Story"></i>'
+					: '';
+			editIcon =
+				isOwnStory(story) && isOwnStoriesPage
+					? '<i class="fas fa-pencil-alt" data-toggle="tooltip" data-placement="bottom" title="Edit Story"></i>'
+					: '';
 		}
-
 		// render story markup
 		const storyMarkup = $(`
 	  <li id="${story.storyId}">
@@ -276,7 +423,7 @@ $(async function() {
           <strong>${story.title}</strong>
         </a>
         <small class="article-author">by ${story.author}</small>
-        <small class="article-hostname ${hostName}">(${hostName})</small>
+        <small class="article-hostname ${hostName}">(${hostName})</small> ${editIcon}
         <small class="article-username">posted by ${story.username}</small>
       </li>
     `);
@@ -319,7 +466,7 @@ $(async function() {
 			$favoritedStories.append(favStoryHtml);
 		}
 
-		$favoritedStories.removeClass('hidden');
+		$favoritedStories.show();
 	}
 
 	/**
@@ -337,10 +484,10 @@ $(async function() {
 			$userStories.append(userStoryHtml);
 		}
 
-		$userStories.removeClass('hidden');
+		$userStories.show();
 	}
 
-	/* hide all elements in elementsArr */
+	/* hide all elements in elementsArr. Most often used when changing tabs*/
 
 	function hideElements() {
 		const elementsArr = [
@@ -350,14 +497,34 @@ $(async function() {
 			$userStories,
 			$loginForm,
 			$createAccountForm,
-			$favoritedStories
+			$favoritedStories,
+			$profileContainer,
+			$addStoryContainer,
+			$editForm,
+			$updateUserContainer,
+			$credentialsError,
+			$missingError,
+			$conflictError,
+			$invalidEditError,
+			$invalidAddError,
+			$accountContainer,
+			$nameValidationMsg,
+			$usernameValidationMsg,
+			$passwordValidationMsg
 		];
-		elementsArr.forEach(($elem) => $elem.addClass('hidden'));
+		elementsArr.forEach(($elem) => $elem.hide());
 	}
 
 	function showNavForLoggedInUser() {
-		$navLogin.addClass('hidden');
-		$navLogOut.removeClass('hidden');
+		$navLogin.hide();
+		$navSubmit.toggleClass('disabled');
+		$navFavorites.toggleClass('disabled');
+		$navUserStories.toggleClass('disabled');
+
+		$navProfile.html(`<i class="fas fa-user-cog fa-lg"></i>`);
+		$navProfile.text(`${currentUser.username}'s Profile`);
+		$navProfile.append('<i class="fas fa-user-cog fa-lg"></i>');
+		$navProfile.show(0, () => $navProfile.css('display', 'flex')); //Issues where default .show() was creating inline element that messed up styling
 	}
 
 	/* simple function to pull the hostname from a URL */
@@ -383,5 +550,91 @@ $(async function() {
 			localStorage.setItem('token', currentUser.loginToken);
 			localStorage.setItem('username', currentUser.username);
 		}
+	}
+
+	/**
+	 * Basic error handling for API responses.
+	 * Attempts to catch errors thrown for invalid requests and alert user
+	 * as to what the issue may be, and allow for reentry of info.
+	 */
+
+	function errorOccurance(error) {
+		if (typeof error === 'undefined') {
+			return false;
+		}
+		const conflictErr = 'Request failed with status code 409';
+		const credentialsErr = 'Request failed with status code 401';
+		const missingErr = 'Request failed with status code 404';
+		const invaldSubmErr = 'Request failed with status code 400';
+
+		if (error.message === conflictErr) {
+			_displayError($conflictError);
+			return true;
+		}
+		if (error.message === missingErr) {
+			_displayError($missingError);
+			return true;
+		}
+		if (error.message === credentialsErr) {
+			_displayError($credentialsError);
+			return true;
+		}
+		if (error.message === invaldSubmErr) {
+			_displayError($invalidAddError);
+			_displayError($invalidEditError);
+			return true;
+		}
+		return false;
+
+		function _displayError(element) {
+			element.show();
+			element.get(0).scrollIntoView(false);
+		}
+	}
+
+	/**
+	 * Validates user inputs for account creation based on requirements stated on API.
+	 * Shows error message directing user towards what the issue is if input not valid,
+	 * otherwise does nothing
+	 */
+	function validateInputs(name, username, password) {
+		//validate based on required inputs for API (string length 1-55,
+		//and username only letters and numbers
+		let validUsername;
+		let validName;
+		let validPassword;
+
+		if (!isValidCharacters(username)) {
+			$usernameValidationMsg.show();
+			validUsername = false;
+		}
+		if (!isValidLength(password)) {
+			$passwordValidationMsg.show();
+			validPassword = false;
+		}
+		if (!isValidLength(name)) {
+			$nameValidationMsg.show();
+			validName = false;
+		}
+		if (validName || validPassword || validUsername) return false;
+		else return true;
+	}
+
+	function isValidCharacters(username) {
+		if (isValidLength(username)) {
+			const lettersNumbers = /^[0-9a-zA-Z]+$/;
+			if (lettersNumbers.test(username)) {
+				return true;
+			}
+			else return false;
+		}
+		else return false;
+	}
+
+	function isValidLength(string) {
+		if (string.length > 0 && string.length < 56) {
+			return true;
+		}
+		else return false;
 	}
 });

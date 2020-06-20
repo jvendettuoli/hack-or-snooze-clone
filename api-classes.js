@@ -42,23 +42,41 @@ class StoryList {
 	static async addStory(token, newStory) {
 		// this function should return the newly created story so it can be used in
 		// the ui.js file where it will be appended to the DOM
-		const response = await axios.post(`${BASE_URL}/stories`, { token, story: newStory });
-		const addStory = response.data;
-		return addStory;
+		try {
+			await axios.post(`${BASE_URL}/stories`, { token, story: newStory });
+		} catch (error) {
+			return error;
+		}
 	}
 
 	/**
 	 * Method to make a DELETE request to /stories and delete a story. 
-	 * Takes current user's loginToken and a storyId and deletes the story from the Hack or Snooze database
+	 * Takes current user's loginToken and a storyId and deletes the story 
+	 * from the Hack or Snooze database
 	 */
 
 	static async deleteStory(token, storyId) {
-		console.log(token, storyId);
 		await axios.delete(`${BASE_URL}/stories/${storyId}`, {
 			data : {
 				token
 			}
 		});
+	}
+
+	/**
+	 * Method to make a PATCH request to /stories and edit a posted story.
+	 * Takes current user's loginToken and a storyID and new story info and 
+	 * edits a story's author, title, and/or URL
+	 */
+	static async updateStory(token, storyId, storyEdits) {
+		try {
+			await axios.patch(`${BASE_URL}/stories/${storyId}`, {
+				token,
+				story : storyEdits
+			});
+		} catch (error) {
+			return error;
+		}
 	}
 }
 
@@ -90,17 +108,21 @@ class User {
    */
 
 	static async create(username, password, name) {
-		const response = await axios.post(`${BASE_URL}/signup`, {
-			user : {
-				username,
-				password,
-				name
-			}
-		});
-		console.log(response);
+		let response;
+		//Catch potential error during account creation request to API
+		try {
+			response = await axios.post(`${BASE_URL}/signup`, {
+				user : {
+					username,
+					password,
+					name
+				}
+			});
+		} catch (error) {
+			return error;
+		}
 		// build a new User instance from the API response
 		const newUser = new User(response.data.user);
-
 		// attach the token to the newUser instance for convenience
 		newUser.loginToken = response.data.token;
 
@@ -114,12 +136,17 @@ class User {
    */
 
 	static async login(username, password) {
-		const response = await axios.post(`${BASE_URL}/login`, {
-			user : {
-				username,
-				password
-			}
-		});
+		let response;
+		try {
+			response = await axios.post(`${BASE_URL}/login`, {
+				user : {
+					username,
+					password
+				}
+			});
+		} catch (error) {
+			return error;
+		}
 
 		// build a new User instance from the API response
 		const existingUser = new User(response.data.user);
@@ -164,9 +191,11 @@ class User {
 	}
 
 	/**
-	 * Allow logged in user to favorite and unfavorite stories that will be displayed on a separate list of only favorited stories.
+	 * Allow logged in user to favorite and unfavorite stories that will be 
+	 * displayed on a separate list of only favorited stories.
 	 * 
-	 * These methods receives a user and storyId and if adding favorite post request to API, and if removing favorite sents delete request to API 
+	 * These methods receives a user and storyId and if adding favorite post 
+	 * request to API, and if removing favorite sents delete request to API 
 	 */
 
 	static async addFavorite(user, storyId) {
@@ -184,18 +213,19 @@ class User {
 	}
 
 	/**
-	 * Updates the user 
+	 * Updates the user account info
 	 * 
-	 * Accepts a user and makes patch request to API, returns updated user object
+	 * Accepts a user and updated user information and makes patch request to API, 
+	 * returns updated user object
 	 */
-	static async update(user) {
-		let newName = 'test';
+	static async updateAccount(user, userUpdate) {
+		console.log(user);
+		console.log(userUpdate);
 		let response = await axios.patch(`${BASE_URL}/users/${user.username}`, {
 			token : user.loginToken,
-			user  : {
-				name : newName
-			}
+			user  : userUpdate
 		});
+		console.log(response);
 		const updatedUser = new User(response.data.user);
 		updatedUser.favorites = user.favorites;
 		return updatedUser;

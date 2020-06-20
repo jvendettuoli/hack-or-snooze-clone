@@ -8,149 +8,177 @@
   <title>Hack or Snooze</title>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
     crossorigin="anonymous">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 
 <body>
-  <!-- <nav class="navbar navbar-expand-lg"> -->
-    <!-- <a class="nav-link navbar-brand mb-0 h1" href="#" id="nav-all">Hack or Snooze</a> -->
-    <!-- <a class="nav-link nav-left" id="nav-favorites" href="#">
-      <p>Favorites</p>
-    </a> -->
-    <!-- <a class="nav-link nav-right" href="#" id="nav-login">login/create user</a> -->
-    <!-- <span class="nav-link nav-right hidden" id="nav-welcome">
-      <a href="#" id="nav-user-profile"></a>
-    </span> -->
-    <!-- <a class="nav-link nav-right hidden" id="nav-logout" href="#">
-      <small>(logout)</small>
-    </a> -->
-  <!-- </nav> -->
+  <div class="container-fluid">
   <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand" href="#" id="nav-all">Hack or Snooze</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+      <span class="navbar-toggler-icon"><i class="fas fa-bars"></i></span>
     </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" id="nav-favorites" href="#">Favorites</a>
+          <a class="nav-link disabled" id="nav-submit" href="#">Submit</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="nav-user-stories" href="#">My Stories</a>
+          <a class="nav-link disabled" id="nav-favorites" href="#">Favorites</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" id="nav-user-stories" href="#">My Stories</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="nav-login" href="#">Login / Create User</a>
         </li>      
         <li class="nav-item">
-          <a class="nav-link hidden" id="nav-logout" href="#">Logout</a>
-        </li>
-      
-     
+          <a class="nav-link hidden" id="nav-profile" href="#"></a>
+        </li>     
       </ul>
+    </div>
   </nav>
+
+  <section id="user-profile" class="container" style="display: none">
+    <div class="row">
+      <div class="col">
+        <h4>User Profile Info</h4>
+        <div >
+          <div id="profile-name"></div>
+          <div id="profile-username"></div>
+          <div id="profile-account-date"></div>
+        </div>
+      
+        <div id="user-profile-btns" class="row">
+          <button id="log-out" class="btn btn-primary">Log Out</button>
+          <button id="update-user-info-btn" class="btn btn-primary">Update User Credentials</button>
+        </div>
+      </div>
+    </div>
+    <div class="row" id="update-user-container" style="display: none;">
+      <div class="container">
+        <form action="#" id="update-account-form" class="account-form form-group" method="post">
+          <h4>Update Account Name and Password</h4>
+          <small>*Your username will remain the same.</small>
+          <div class="login-input">
+            <label for="update-account-name">Name</label>
+            <input class="form-control" id="update-account-name" type="text" minlength="1" maxlength="55" placeholder="Name...">
+          </div>
+          <div class="login-input">
+            <label for="update-account-password">Password</label>
+            <input class="form-control" id="update-account-password" type="password" minlength="1" maxlength="55" placeholder="Password...">
+          </div>
+          <button id="update-btn" type="submit" class="btn btn-primary">Update Account</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+<section id="add-story-container" class="container" style="display: none">
+  <form action="#" id="add-story-form" method="post" class="form-group">
+    <label for="add-story-author">Author</label>
+    <input class="form-control" type="text" id="add-story-author" placeholder="Author...">
+    <label for="add-story-title">Title</label>
+    <input class="form-control" type="text" id="add-story-title" placeholder="Title...">
+    <label for="add-story-url">URL</label>
+    <input class="form-control" type="text" id="add-story-url" placeholder="Link...">
+      <button id="add-story-submit-btn" class="btn btn-primary btn-sm">Post Story</button>
+  </form>
+  <p class="error" id="invalid-error-add" style="display: none">Invalid submission. Please ensure the website is valid and conforms to URI Format.</p>
+</section>
+<section id="edit-story-container" class="container" style="display: none">
+  <form action="#" id="edit-story-form" method="post" class="form-group">
+    <label for="edit-story-author">Author</label>
+    <input class="form-control" type="text" id="edit-story-author" placeholder="Author...">
+    <label for="edit-story-title">Title</label>
+    <input class="form-control" type="text" id="edit-story-title" placeholder="Title...">
+    <label for="edit-story-url">URL</label>
+    <input class="form-control" type="text" id="edit-story-url" placeholder="Link...">
+      <button id="edit-story-submit-btn" class="btn btn-primary">Edit Story</button>
+  </form>
+  <p class="error" id="invalid-error-edit" style="display: none">Invalid submission. Please ensure the website is valid and conforms to URI Format.</p>
+</section>
+
+
+
+
+  <section id="account-forms-container" class="container" style="display: none">
+    <div class="row">
+      <div class="col">
+        <form id="login-form" class="account-form needs-validation" novalidate>
+          <h4>Login</h4>
+          <div class="form-group">
+            <label for="login-username">Username</label>
+            <input type="text" minlength="1" maxlength="55" class="form-control" id="login-username" placeholder="Enter Username...">
+            <div class="invalid-feedback">
+              Invalid Username!
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" minlength="1" maxlength="55" class="form-control" id="login-password" placeholder="Password...">
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p class="error" id="missing-error" style="display: none">Login credentials are incorrect or account does not exist. Please try again with valid credentials or create a new account.</p>
+        <p class="error" id="credentials-error" style="display: none">Login credentials are incorrect. Please try again with valid credentials or create a new account.</p>
+      </div>
+
+    <div class="col">
+      <form action="#" id="create-account-form" class="account-form" method="post">
+        <h4>Create Account</h4>
+        <div class="login-input">
+          <label for="create-account-name">Name</label>
+          <input id="create-account-name" type="text" minlength="1" maxlength="55" placeholder="Name...">
+        </div>
+        <p class="error" id="name-validation-msg" style="display: none">Name must be between 1 and 55 characters.</p>
+        <div class="login-input">
+          <label for="create-account-username">Username</label>
+          <input id="create-account-username" type="text" minlength="1" maxlength="55" placeholder="Username...">
+        </div>
+        <p class="error" id="username-validation-msg" style="display: none">Username must be between 1 and 55 characters, and only contain letters and numbers.</p>
+        <div class="login-input">
+          <label for="create-account-password">Password</label>
+          <input id="create-account-password" type="password" minlength="1" maxlength="55" placeholder="Password...">
+        </div>
+        <p class="error" id="password-validation-msg" style="display: none">Password must be between 1 and 55 characters.</p>
+        <button type="submit" class="btn btn-primary">create account</button>
+      </form>
+      <p class="error" id="conflict-error" style="display: none">Username is taken, please chooose a different username and try again.</p>
+    </div>
+  </div>
+  </section>
+
 
 
 
   <section class="articles-container container">
-    <form action="" class="hidden" id="submit-form">
-      <div>
-        <label for="author">author</label>
-        <input id="author" required type="text" placeholder="author name">
-      </div>
-      <div>
-        <label for="title">title</label>
-        <input id="title" required type="text" placeholder="article title">
-      </div>
-      <div>
-        <label for="url">url</label>
-        <input id="url" required type="url" placeholder="article url">
-      </div>
-      <button type="submit">submit</button>
-      <hr>
-    </form>
     <article>
       <ol id="all-articles-list" class="articles-list">
         <h3>Loading...</h3>
       </ol>
     </article>
     <article>
-      <ul id="favorited-articles" class="hidden articles-list">
+      <ul id="favorited-articles" class="articles-list" style="display: none">
       </ul>
     </article>
+ 
     <article>
-      <ul id="filtered-articles" class="hidden articles-list">
-      </ul>
-    </article>
-    <article>
-      <ul id="user-articles" class="hidden articles-list">
+      <ul id="user-articles" class="articles-list" style="display: none">
       </ul>
     </article>
   </section>
-  <section class="edit-article-container container">
-    <form action="#" id="edit-article-form" class="hidden" method="post">
-      <h4>Article Information</h4>
-      <div class="edit-input">
-        <label for="edit-title">Title</label>
-        <input id="edit-title" type="text">
-        <button type="submit">change</button>
-      </div>
-    </form>
-  </section>
-  <section class="account-forms-container container">
-    <form action="#" id="login-form" class="account-form hidden" method="post">
-      <h4>Login</h4>
-      <div class="login-input">
-        <label for="login-username">username</label>
-        <input id="login-username" type="text">
-      </div>
-      <div class="login-input">
-        <label for="login-password">password</label>
-        <input id="login-password" type="password">
-      </div>
-      <button type="submit">login</button>
-      <hr>
-    </form>
-    <form action="#" id="create-account-form" class="account-form hidden" method="post">
-      <h4>Create Account</h4>
-      <div class="login-input">
-        <label for="create-account-name">name</label>
-        <input id="create-account-name" type="text">
-      </div>
-      <div class="login-input">
-        <label for="create-account-username">username</label>
-        <input id="create-account-username" type="text">
-      </div>
-      <div class="login-input">
-        <label for="create-account-password">password</label>
-        <input id="create-account-password" type="password">
-      </div>
-      <button type="submit">create account</button>
-    </form>
-  </section>
-  <section id="user-profile" class="container hidden">
-    <h4>User Profile Info</h4>
-    <section>
-      <div id="profile-name">Name:</div>
-      <div id="profile-username">Username:</div>
-      <div id="profile-account-date">Account Created:</div>
-      <!-- Remove after testing -->
-      <div><form action="#" class="add-story-form" method="post">
-        <label for="add-story-author">Author</label>
-        <input type="text" id="add-story-author">
-        <label for="add-story-title">Title</label>
-        <input type="text" id="add-story-title">
-        <label for="add-story-url">URL</label>
-        <input type="text" id="add-story-url" placeholder="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier">
-          <button id="add-story-submit-btn">Post Story</button>
-      </form></div>
-      <!-- End remove -->
-    </section>
-  </section>
+
+
+
+</div>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
   crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js" integrity="sha384-1CmrxMRARb6aLqgBO7yyAxTOQE2AKb9GfXnEo760AUcUmFx3ibVJJAzGytlQcNXd" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/axios/dist/axios.js"></script>
+
 <script src="api-classes.js"></script>
 <script src="ui.js"></script>
 
