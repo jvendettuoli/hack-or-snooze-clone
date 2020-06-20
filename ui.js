@@ -34,6 +34,8 @@ $(async function() {
 	const $nameValidationMsg = $('#name-validation-msg');
 	const $usernameValidationMsg = $('#username-validation-msg');
 	const $passwordValidationMsg = $('#password-validation-msg');
+	const $favEmptyMsg = $('#fav-empty-msg');
+	const $ownEmptyMsg = $('#own-empty-msg');
 
 	// global storyList variable
 	let storyList = null;
@@ -309,6 +311,9 @@ $(async function() {
 	$navFavorites.on('click', async function() {
 		hideElements();
 		await generateFavorites();
+		if ($favoritedStories.children().length === 0) {
+			$favEmptyMsg.show();
+		}
 	});
 
 	/**
@@ -317,6 +322,9 @@ $(async function() {
 	$navUserStories.on('click', async function() {
 		hideElements();
 		await generateUserStories();
+		if ($userStories.children().length === 0) {
+			$ownEmptyMsg.show();
+		}
 	});
 
 	/**
@@ -510,7 +518,9 @@ $(async function() {
 			$accountContainer,
 			$nameValidationMsg,
 			$usernameValidationMsg,
-			$passwordValidationMsg
+			$passwordValidationMsg,
+			$favEmptyMsg,
+			$ownEmptyMsg
 		];
 		elementsArr.forEach(($elem) => $elem.hide());
 	}
